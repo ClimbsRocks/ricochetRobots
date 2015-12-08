@@ -14,13 +14,46 @@ var ricochetRobots = function(board) {
 
 
   var moveOneStep = function(board, direction, visitedBoard, rowPos, colPos) {
-    if( direction === 'right' && board[rowPos][colPos + 1].wall === false) {
-      moveOneStep(board, direction, visitedBoard, rowPos, colPos + 1);
+
+    if( board[rowPos][colPos].goal === true) {
+      // we made it!
+      numPaths++;
+      var stepCount = visitedBoard.reduce(function(acc, row) {
+        acc += row.reduce(function(rowCount, hasBeenVisited) {
+          if( hasBeenVisited === 1) {
+            rowCount++;
+          }
+          return rowCount;
+        });
+        return acc;
+      }, 0);
+
+      if(stepCount < shortestPathNumSteps) {
+        shortestPathNumSteps = stepCount;
+        // create a copy of the board
+        shortestPathMatrix = JSON.parse(JSON.stringify(visitedBoard));
+      }
+
+      // base case; don't recurse any further
+      // could make this much more efficient through toggling, but that requires you to remember previous momentum, which is more complex than we need for MVP.
+    } else if( direction === 'right') {
+      var nextColPos = colPos + 1;
+      if( board[rowPos][nextColPos].wall === false) {
+        visitedBoard[rowPos][nextColPos] = 1
+        moveOneStep(board, direction, visitedBoard, rowPos, nextColPos);
+      } else {
+        moveOneStep(board, 'stopped', )
+      }
     }
   }
 
   moveOneStep(board, 'stopped', makeEmptyMatrix(board.length), 0, 0);
+  // print out the shortest path
+  for(var i = 0; i < shortestPathMatrix.length; i++ ){
+    console.log(shortestPathMatrix[i]);
+  }
 
+  return shortestPathNumSteps;
 }
 
 var makeEmptyMatrix = function(n) {
@@ -58,6 +91,8 @@ var Board = function(n) {
       if( (Math.random() < 2/(n*n) || (i + 1 === n && j + 1 === n) ) && goalPlaced === false ) {
         squareObj.goal = true;
         goalPlaced = true;
+        // make sure this is not a wall and the goal!
+        squareObj.wall = false;
       }
       row.push(squareObj);
     }
