@@ -1,8 +1,39 @@
 var ricochetRobots = function(board) {
-  
+  var numPaths = 0;
+  var shortestPathNumSteps = Infinity;
+  var shortestPathMatrix;
+
+  if(!Array.isArray(board)) {
+    if( board === undefined ) {
+      board = Board(8);
+    } else {
+      // board can be a number. if so, pass that directly into our Board class.
+      board = Board(board);
+    }
+  }
+
+
+  var moveOneStep = function(board, direction, visitedBoard, rowPos, colPos) {
+    if( direction === 'right' && board[rowPos][colPos + 1].wall === false) {
+      moveOneStep(board, direction, visitedBoard, rowPos, colPos + 1);
+    }
+  }
+
+  moveOneStep(board, 'stopped', makeEmptyMatrix(board.length), 0, 0);
+
 }
 
-
+var makeEmptyMatrix = function(n) {
+  var matrix = [];
+  for(var i = 0; i < n; i++) {
+    var row = [];
+    for(var j = 0; j < n; j++) {
+      row.push(0);
+    }
+    matrix.push(row);
+  }
+  return matrix;
+}
 
 var Board = function(n) {
   var board = [];
